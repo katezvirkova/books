@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookmarks Manager</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Bookmarks Manager</h1>
+
+    <!-- Форма для пошуку закладки за ID -->
+    <form id="search-bookmark-form">
+        <input type="number" id="bookmark-id" placeholder="Enter Bookmark ID" required>
+        <button type="submit">Search Bookmark</button>
+    </form>
+
+    <!-- Форма для додавання нової категорії -->
+    <form id="category-form">
+        <input type="text" id="new-category" placeholder="Enter New Category" required>
+        <button type="submit">Add Category</button>
+    </form>
+
+    <!-- Форма для додавання нової закладки -->
+    <form id="bookmark-form">
+        <input type="url" id="url" placeholder="Enter URL" required>
+        <input type="text" id="title" placeholder="Enter Title" required>
+        <select id="category"></select>
+        <button type="submit">Add Bookmark</button>
+    </form>
+
+    <!-- Кнопки фільтрації -->
+    <div class="filter-buttons">
+        <button id="view-all">View All Bookmarks</button>
+        <button id="view-favorites">View Favorite Bookmarks</button>
+    </div>
+
+    <!-- Список категорій -->
+    <div id="category-list"></div>
+
+    <!-- Список закладок -->
+    <div id="bookmarks-list"></div>
+
+    <script src="./script.js"></script>
+</body>
+</html>
