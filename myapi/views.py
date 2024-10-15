@@ -61,7 +61,7 @@ class BookmarkDetail(GetObjectMixin, APIView):
 
 
 class FavoriteBookmark(APIView):
-    def post(self, request, pk):
+    def patch(self, request, pk):
         try:
             bookmark = Bookmark.objects.get(pk=pk)
             bookmark.favorite = not bookmark.favorite
@@ -69,7 +69,6 @@ class FavoriteBookmark(APIView):
             return Response({'favorite': bookmark.favorite}, status=status.HTTP_200_OK)
         except Bookmark.DoesNotExist:
             return Response({'error': 'Bookmark not found.'}, status=status.HTTP_404_NOT_FOUND)
-
 
 class CategoryList(APIView):
     def get(self, request):
