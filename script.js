@@ -1,31 +1,37 @@
 $(document).ready(function () {
-    const apiUrl = 'http://localhost:8000/api/';
+    const apiUrl = 'http://localhost:8000/api/bookmarks/';
 
-    // Завантаження всіх категорій
+    // Додати кнопку логауту
+    $('#logout-button').on('click', function () {
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
+        localStorage.removeItem('username');
+        alert('You have been logged out.');
+        window.location.href = 'login.html'; // Перенаправлення на сторінку логіну
+    });
+
     function loadCategories() {
         $.get(`${apiUrl}categories/`, function (data) {
-            // Очищення контейнерів перед додаванням нових категорій
+            
             $('#category, #edit-category').empty().append('<option value="">No Category</option>');
-            $('#category-list').empty();  // Очищення списку кнопок категорій
+            $('#category-list').empty();  
 
             data.forEach(category => {
                 $('#category, #edit-category').append(`<option value="${category.id}">${category.name}</option>`);
-                $('#category-list').append(`
-                    <button class="category-button" data-id="${category.id}">${category.name}</button>
-                `);
+                
         });
         
    
         }).fail(xhr => alert(`Error loading categories: ${xhr.responseText}`));
     }
 
-    // Завантаження всіх закладок
+    
     function loadBookmarks() {
         $.get(`${apiUrl}bookmarks/`, renderBookmarks)
             .fail(xhr => alert(`Error loading bookmarks: ${xhr.responseText}`));
     }
 
-    // Завантаження лише улюблених закладок
+    
     function loadFavoriteBookmarks() {
         $.get(`${apiUrl}bookmarks/`, function (data) {
             const favorites = data.filter(bookmark => bookmark.favorite);
@@ -33,9 +39,9 @@ $(document).ready(function () {
         }).fail(xhr => alert(`Error loading favorite bookmarks: ${xhr.responseText}`));
     }
 
-    // Рендеринг закладок
+    
     function renderBookmarks(data) {
-        // Очищення списку перед рендерингом
+        
         $('#bookmarks-list').empty();
 
         data.forEach(bookmark => {
@@ -60,7 +66,7 @@ $(document).ready(function () {
         attachEventHandlers();
     }
 
-    // Прив'язка подій до кнопок фільтрації
+    
     $('#view-all').off('click').on('click', function () {
         loadBookmarks();
     });
@@ -69,7 +75,7 @@ $(document).ready(function () {
         loadFavoriteBookmarks();
     });
 
-    // Прив'язка подій до інших кнопок
+    
     function attachEventHandlers() {
         $('#bookmarks-list').off('click')
             .on('click', '.edit-button', function () {
@@ -88,7 +94,7 @@ $(document).ready(function () {
             });
     }
 
-    // Відкриття модального вікна для редагування
+    
     function openEditModal(bookmark) {
         $('#edit-title').val(bookmark.title);
         $('#edit-url').val(bookmark.url);
@@ -102,12 +108,12 @@ $(document).ready(function () {
         });
     }
 
-    // Закриття модального вікна
+    
     $('.close-button').click(function () {
         $('#editModal').fadeOut();
     });
 
-    // Оновлення закладки
+    
     function updateBookmark(id) {
         const title = $('#edit-title').val().trim();
         const url = $('#edit-url').val().trim();
@@ -131,7 +137,7 @@ $(document).ready(function () {
         });
     }
 
-    // Перемикання улюбленої закладки
+   
     function toggleFavorite(id, button) {
         $.ajax({
             url: `${apiUrl}bookmarks/${id}/favorite/`,
@@ -145,7 +151,7 @@ $(document).ready(function () {
         });
     }
 
-    // Видалення закладки
+    
     function deleteBookmark(id) {
         $.ajax({
             url: `${apiUrl}bookmarks/${id}/`,
@@ -155,7 +161,7 @@ $(document).ready(function () {
         });
     }
 
-    // Додавання нової категорії
+   
     $('#category-form').submit(function (e) {
         e.preventDefault();
         const name = $('#new-category').val().trim();
@@ -178,7 +184,7 @@ $(document).ready(function () {
         });
     });
 
-    // Додавання нової закладки
+   
     $('#bookmark-form').submit(function (e) {
         e.preventDefault();
         const url = $('#url').val().trim();
@@ -204,12 +210,12 @@ $(document).ready(function () {
         });
     });
 
-    // Скидання форми
+   
     function resetForm(formId) {
         $(`#${formId}`)[0].reset();
     }
 
-    // Пошук закладки за ID
+   
     $('#search-bookmark-form').submit(function (e) {
         e.preventDefault();
         const bookmarkId = $('#bookmark-id').val().trim();
@@ -230,7 +236,7 @@ $(document).ready(function () {
         });
     });
 
-    // Рендеринг однієї закладки
+    
     function renderSingleBookmark(bookmark) {
         $('#bookmarks-list').html(`
             <div class="bookmark-item">
@@ -242,7 +248,7 @@ $(document).ready(function () {
         `);
     }
 
-    // Початкове завантаження даних
+
     loadCategories();
     loadBookmarks();
 });
