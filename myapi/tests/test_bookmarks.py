@@ -2,7 +2,6 @@ import pytest
 from django.urls import reverse
 from myapi.models import Bookmark, Category
 
-
 @pytest.mark.django_db
 def test_get_bookmark_list(api_client, user) -> None:
     login_url = reverse('token_obtain_pair')
