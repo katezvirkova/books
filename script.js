@@ -1,39 +1,77 @@
 $(document).ready(function () {
     const apiUrl = 'http://localhost:8000/api/bookmarks/';
-
     
-    function loadCategories() {
-        $.get(`${apiUrl}categories/`, function (data) {
-            
-            $('#category, #edit-category').empty().append('<option value="">No Category</option>');
-            $('#category-list').empty();  
-
-            data.forEach(category => {
-                $('#category, #edit-category').append(`<option value="${category.id}">${category.name}</option>`);
-                
-        });
-        
+    
+    const accessToken = localStorage.getItem('access');
+    
    
-        }).fail(xhr => alert(`Error loading categories: ${xhr.responseText}`));
+    if (!accessToken) {
+        window.location.href = 'login.html';
+        return;
     }
 
     
+    $('#logout-button').on('click', function () {
+        localStorage.removeItem('access');
+        localStorage.removeItem('refresh');
+        localStorage.removeItem('username');
+        alert('You have been logged out.');
+        window.location.href = 'login.html'; 
+    });
+
+    function loadCategories() {
+        $.ajax({
+            url: `${apiUrl}categories/`,
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}` 
+            },
+            success: function (data) {
+                $('#category, #edit-category').empty().append('<option value="">No Category</option>');
+                data.forEach(category => {
+                    $('#category, #edit-category').append(`<option value="${category.id}">${category.name}</option>`);
+                });
+            },
+            error: function (xhr) {
+                alert(`Error loading categories: ${xhr.responseText}`);
+            }
+        });
+    }
+
     function loadBookmarks() {
-        $.get(`${apiUrl}bookmarks/`, renderBookmarks)
-            .fail(xhr => alert(`Error loading bookmarks: ${xhr.responseText}`));
+        $.ajax({
+            url: `${apiUrl}`,
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}` 
+            },
+            success: function (data) {
+                renderBookmarks(data);
+            },
+            error: function (xhr) {
+                alert(`Error loading bookmarks: ${xhr.responseText}`);
+            }
+        });
     }
 
-    
     function loadFavoriteBookmarks() {
-        $.get(`${apiUrl}bookmarks/`, function (data) {
-            const favorites = data.filter(bookmark => bookmark.favorite);
-            renderBookmarks(favorites);
-        }).fail(xhr => alert(`Error loading favorite bookmarks: ${xhr.responseText}`));
+        $.ajax({
+            url: `${apiUrl}`,
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}` 
+            },
+            success: function (data) {
+                const favorites = data.filter(bookmark => bookmark.favorite);
+                renderBookmarks(favorites);
+            },
+            error: function (xhr) {
+                alert(`Error loading favorite bookmarks: ${xhr.responseText}`);
+            }
+        });
     }
 
-    
     function renderBookmarks(data) {
-        
         $('#bookmarks-list').empty();
 
         data.forEach(bookmark => {
@@ -58,7 +96,6 @@ $(document).ready(function () {
         attachEventHandlers();
     }
 
-    
     $('#view-all').off('click').on('click', function () {
         loadBookmarks();
     });
@@ -67,13 +104,22 @@ $(document).ready(function () {
         loadFavoriteBookmarks();
     });
 
-    
     function attachEventHandlers() {
         $('#bookmarks-list').off('click')
             .on('click', '.edit-button', function () {
                 const id = $(this).data('id');
-                $.get(`${apiUrl}bookmarks/${id}/`, function (bookmark) {
-                    openEditModal(bookmark);
+                $.ajax({
+                    url: `${apiUrl}${id}/`,
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}` 
+                    },
+                    success: function (bookmark) {
+                        openEditModal(bookmark);
+                    },
+                    error: function (xhr) {
+                        alert(`Error loading bookmark: ${xhr.responseText}`);
+                    }
                 });
             })
             .on('click', '.favorite-button', function () {
@@ -86,7 +132,6 @@ $(document).ready(function () {
             });
     }
 
-    
     function openEditModal(bookmark) {
         $('#edit-title').val(bookmark.title);
         $('#edit-url').val(bookmark.url);
@@ -100,12 +145,10 @@ $(document).ready(function () {
         });
     }
 
-    
     $('.close-button').click(function () {
         $('#editModal').fadeOut();
     });
 
-    
     function updateBookmark(id) {
         const title = $('#edit-title').val().trim();
         const url = $('#edit-url').val().trim();
@@ -117,43 +160,55 @@ $(document).ready(function () {
         }
 
         $.ajax({
-            url: `${apiUrl}bookmarks/${id}/`,
-            type: 'PUT',
+            url: `${apiUrl}${id}/`,
+            method: 'PUT',
             contentType: 'application/json',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`, 
+            },
             data: JSON.stringify({ title, url, category_id: categoryId }),
             success: function () {
                 $('#editModal').fadeOut();
                 loadBookmarks();
             },
-            error: xhr => alert(`Error updating bookmark: ${xhr.responseText}`)
+            error: function (xhr) {
+                alert(`Error updating bookmark: ${xhr.responseText}`);
+            }
         });
     }
 
-   
     function toggleFavorite(id, button) {
         $.ajax({
-            url: `${apiUrl}bookmarks/${id}/favorite/`,
-            type: 'PATCH',
+            url: `${apiUrl}${id}/favorite/`,
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`, 
+            },
             success: function () {
                 const isFavorite = button.text() === 'Unfavorite';
                 button.text(isFavorite ? 'Favorite' : 'Unfavorite');
                 loadBookmarks();
             },
-            error: xhr => alert(`Error toggling favorite: ${xhr.responseText}`)
+            error: function (xhr) {
+                alert(`Error toggling favorite: ${xhr.responseText}`);
+            }
         });
     }
 
-    
     function deleteBookmark(id) {
         $.ajax({
-            url: `${apiUrl}bookmarks/${id}/`,
-            type: 'DELETE',
+            url: `${apiUrl}${id}/`,
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`, 
+            },
             success: loadBookmarks,
-            error: xhr => alert(`Error deleting bookmark: ${xhr.responseText}`)
+            error: function (xhr) {
+                alert(`Error deleting bookmark: ${xhr.responseText}`);
+            }
         });
     }
 
-   
     $('#category-form').submit(function (e) {
         e.preventDefault();
         const name = $('#new-category').val().trim();
@@ -165,18 +220,22 @@ $(document).ready(function () {
 
         $.ajax({
             url: `${apiUrl}categories/`,
-            type: 'POST',
+            method: 'POST',
             contentType: 'application/json',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`, 
+            },
             data: JSON.stringify({ name }),
             success: function () {
                 loadCategories();
                 $('#new-category').val('');
             },
-            error: xhr => alert(`Error adding category: ${xhr.responseText}`)
+            error: function (xhr) {
+                alert(`Error adding category: ${xhr.responseText}`);
+            }
         });
     });
 
-   
     $('#bookmark-form').submit(function (e) {
         e.preventDefault();
         const url = $('#url').val().trim();
@@ -189,25 +248,27 @@ $(document).ready(function () {
         }
 
         $.ajax({
-            url: `${apiUrl}bookmarks/`,
-            type: 'POST',
+            url: `${apiUrl}`,
+            method: 'POST',
             contentType: 'application/json',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`, 
+            },
             data: JSON.stringify({ url, title, category_id: categoryId }),
             success: function () {
                 loadBookmarks();
-                resetForm
                 resetForm('bookmark-form');
             },
-            error: xhr => alert(`Error adding bookmark: ${xhr.responseText}`)
+            error: function (xhr) {
+                alert(`Error adding bookmark: ${xhr.responseText}`);
+            }
         });
     });
 
-   
     function resetForm(formId) {
         $(`#${formId}`)[0].reset();
     }
 
-   
     $('#search-bookmark-form').submit(function (e) {
         e.preventDefault();
         const bookmarkId = $('#bookmark-id').val().trim();
@@ -217,18 +278,25 @@ $(document).ready(function () {
             return;
         }
 
-        $.get(`${apiUrl}bookmarks/${bookmarkId}/`, function (data) {
-            renderSingleBookmark(data);
-        }).fail(function (xhr) {
-            if (xhr.status === 404) {
-                window.location.href = "/404.html";
-            } else {
-                alert(`Error loading bookmark: ${xhr.responseText}`);
+        $.ajax({
+            url: `${apiUrl}${bookmarkId}/`,
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`, 
+            },
+            success: function (data) {
+                renderSingleBookmark(data);
+            },
+            error: function (xhr) {
+                if (xhr.status === 404) {
+                    window.location.href = "/404.html";
+                } else {
+                    alert(`Error loading bookmark: ${xhr.responseText}`);
+                }
             }
         });
     });
 
-    
     function renderSingleBookmark(bookmark) {
         $('#bookmarks-list').html(`
             <div class="bookmark-item">
