@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookmarks Manager</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Bookmarks Manager</h1>
+
+   
+    <form id="search-bookmark-form">
+        <input type="number" id="bookmark-id" placeholder="Enter Bookmark ID" required>
+        <button type="submit">Search Bookmark</button>
+    </form>
+
+   
+    <form id="category-form">
+        <input type="text" id="new-category" placeholder="Enter New Category" required>
+        <button type="submit">Add Category</button>
+    </form>
+
+    
+    <form id="bookmark-form">
+        <input type="url" id="url" placeholder="Enter URL" required>
+        <input type="text" id="title" placeholder="Enter Title" required>
+        <select id="category"></select>
+        <button type="submit">Add Bookmark</button>
+    </form>
+
+    
+    <div class="filter-buttons">
+        <button id="view-all">View All Bookmarks</button>
+        <button id="view-favorites">View Favorite Bookmarks</button>
+    </div>
+
+   
+    
+    <div id="bookmarks-list"></div>
+
+   
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2>Edit Bookmark</h2>
+            <form id="edit-bookmark-form">
+                <input type="text" id="edit-title" placeholder="Enter New Title" required>
+                <input type="url" id="edit-url" placeholder="Enter New URL" required>
+                <select id="edit-category"></select>
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="./script.js"></script>
+</body>
+</html>
